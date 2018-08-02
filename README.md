@@ -46,4 +46,11 @@ wget https://developer.apple.com/certificationauthority/AppleWWDRCA.cer
 # 4-4. Right click cerificate, and select `Export "..."`
 # 4-5. Select `Personal Information Excange(.p12)` at File Format, and click `Save`.
 # 4-6. Fill Password/Verify and. click `OK` for save file.
+# 4-7. Move saved file(`xxx.p12`) to root of this repo.
+
+# 5. Copy `.env-example` as `.env` and fill variables.
+
+# 6. Run `npm i` to for install dependencies.
+
+# 7. Run `npm run build-pp` to generate PushPackage.
 ```

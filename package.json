@@ -4,7 +4,8 @@
   "description": "Node.js server &amp; browser client example of Safari Push Notifications using APNS.",
   "main": "index.js",
   "scripts": {
-    "build-pp": "node -r esm generate_pushpackage.js"
+    "start": "node -r esm server.js",
+    "build-pp": "node -r esm bin/generate_pushpackage.js"
   },
   "repository": {
     "type": "git",
@@ -17,10 +18,17 @@
   },
   "homepage": "https://github.com/subuta/safari-push-example#readme",
   "dependencies": {
+    "archiver": "^2.1.1",
     "dotenv": "^6.0.0",
-    "esm": "^3.0.72"
+    "esm": "^3.0.72",
+    "koa": "^2.5.2",
+    "koa-logger": "^3.2.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
+    "rimraf": "^2.6.2"
   },
   "devDependencies": {
+    "mkdirp": "^0.5.1",
     "standard": "^11.0.1"
   }
 }
