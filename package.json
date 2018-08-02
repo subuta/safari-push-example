@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node -r esm server.js",
+    "envify": "env $(cat .env | xargs) envify front/index.js > public/index.js",
+    "copy": "copyfiles -u 1 front/**/* public",
+    "build": "npm run copy && npm run envify",
     "build-pp": "node -r esm bin/generate_pushpackage.js"
   },
   "repository": {
@@ -18,17 +21,22 @@
   },
   "homepage": "https://github.com/subuta/safari-push-example#readme",
   "dependencies": {
-    "archiver": "^2.1.1",
     "dotenv": "^6.0.0",
     "esm": "^3.0.72",
     "koa": "^2.5.2",
+    "koa-body": "^4.0.4",
     "koa-logger": "^3.2.0",
     "koa-router": "^7.4.0",
-    "koa-static": "^5.0.0",
-    "rimraf": "^2.6.2"
+    "koa-static": "^5.0.0"
   },
   "devDependencies": {
+    "archiver": "^2.1.1",
+    "clear-module": "^3.0.0",
+    "copyfiles": "^2.0.0",
+    "envify": "^4.1.0",
     "mkdirp": "^0.5.1",
+    "rimraf": "^2.6.2",
+    "sane": "^3.0.0",
     "standard": "^11.0.1"
   }
 }
