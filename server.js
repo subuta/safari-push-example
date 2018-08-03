@@ -4,8 +4,14 @@ import dotenv from 'dotenv'
 import Koa from 'koa'
 import logger from 'koa-logger'
 import koaBody from 'koa-body'
-import serve from 'koa-static'
+import send from 'koa-send'
 import clearModule from 'clear-module'
+import pem from 'pem'
+import https from 'https'
+
+import {
+  PUBLIC_DIR
+} from './config'
 
 // Load `.env`
 dotenv.config()
@@ -26,7 +32,6 @@ if (dev) {
   })
 }
 
-const PUBLIC_DIR = 'public'
 const port = parseInt(PORT, 10) || 5000
 
 const app = new Koa()
@@ -35,7 +40,7 @@ const app = new Koa()
 app.use(logger())
 
 // parse body
-app.use(koaBody());
+app.use(koaBody())
 
 // Register pages routes/allowedMethods
 if (dev) {
@@ -51,9 +56,13 @@ if (dev) {
 }
 
 // otherwise PUBLIC_DIR
-app.use(serve(PUBLIC_DIR))
+app.use(async (ctx) => {
+  await send(ctx, ctx.path, {root: PUBLIC_DIR, index: 'index.html'})
+})
 
-app.listen(port, (err) => {
+// Start https server with self-signed certificate.
+pem.createCertificate({days: 1, selfSigned: true}, function (err, keys) {
   if (err) throw err
-  console.log(`> Ready on http://localhost:${port}`)
+  console.log(`> Ready on https://localhost:${port}`)
+  https.createServer({key: keys.serviceKey, cert: keys.certificate}, app.callback()).listen(port)
 })

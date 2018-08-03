@@ -1,9 +1,15 @@
 # safari-push-example
 Node.js server &amp; browser client example of Safari Push Notifications using APNS.
 
+### References
+
+- [Notification Programming Guide for Websites](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/NotificationProgrammingGuideForWebsites/PushNotifications/PushNotifications.html)
+- [How to Implement Safari Push Notifications on Your Website](http://samuli.hakoniemi.net/how-to-implement-safari-push-notifications-on-your-website/)
+
 ### Prerequisites
 
 - [Active Membership of iOS Developer Account](https://developer.apple.com/account/#/overview/4579AZ8Q4Z)
+- `openssl` can be installed by `brew install openssl`
 
 ### How to develop
 

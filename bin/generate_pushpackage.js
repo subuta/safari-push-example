@@ -39,7 +39,9 @@ let rawFiles = [
 const website = {
   'websiteName': WEBSITE_NAME,
   'websitePushID': WEBSITE_PUSH_ID,
-  'allowedDomains': ALLOWED_DOMAIN,
+  'allowedDomains': [
+    ALLOWED_DOMAIN
+  ],
   'urlFormatString': URL_FORMAT_STRING,
   // any token to auth user
   'authenticationToken': AUTHENTICATION_TOKEN,
