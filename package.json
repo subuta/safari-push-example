@@ -7,7 +7,7 @@
     "start": "node -r esm server.js",
     "envify": "env $(cat .env | xargs) envify front/index.js > public/index.js",
     "copy": "copyfiles -u 1 front/**/* public",
-    "build": "npm run copy && npm run envify",
+    "build": "npm run build-pp && npm run copy && npm run envify",
     "build-pp": "node -r esm bin/generate_pushpackage.js"
   },
   "repository": {
@@ -37,6 +37,7 @@
     "envify": "^4.1.0",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.2",
+    "safari-push-notifications": "^0.3.1",
     "sane": "^3.0.0",
     "standard": "^11.0.1"
   }

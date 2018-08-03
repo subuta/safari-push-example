@@ -14,7 +14,7 @@ router.post('/v1/log', async (ctx) => {
   ctx.body = ''
 })
 
-router.post('/v1/pushPackages/com.sub-labo.safari-push-example', async (ctx) => {
+router.post('/v1/pushPackages/web.com.sub-labo.safari-push-example', async (ctx) => {
   await send(ctx, 'safari-push-example.pushpackage.zip', {root: PUBLIC_DIR})
 })
 

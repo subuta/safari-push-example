@@ -1,15 +1,12 @@
-// Borrowed from https://github.com/wingleung/safari-push-serverside
-
 import dotenv from 'dotenv'
 import fs from 'fs'
-import crypto from 'crypto'
+import pushLib from 'safari-push-notifications'
 import childProcess from 'child_process'
 import rimraf from 'rimraf'
-import archiver from 'archiver'
 import mkdirp from 'mkdirp'
 
 import {
-  ROOT_DIR,
+  ICON_DIR,
   PUBLIC_DIR
 } from '../config'
 
@@ -27,29 +24,7 @@ const {
   CERT_P12_PASSWORD
 } = process.env
 
-let rawFiles = [
-  'icon.iconset/icon_16x16.png',
-  'icon.iconset/icon_16x16@2x.png',
-  'icon.iconset/icon_32x32.png',
-  'icon.iconset/icon_32x32@2x.png',
-  'icon.iconset/icon_128x128.png',
-  'icon.iconset/icon_128x128@2x.png'
-]
-
-const website = {
-  'websiteName': WEBSITE_NAME,
-  'websitePushID': WEBSITE_PUSH_ID,
-  'allowedDomains': [
-    ALLOWED_DOMAIN
-  ],
-  'urlFormatString': URL_FORMAT_STRING,
-  // any token to auth user
-  'authenticationToken': AUTHENTICATION_TOKEN,
-  'webServiceURL': WEB_SERVICE_URL
-}
-
-const manifest = {}
-const pushPackagePath = `${PUBLIC_DIR}/safari-push-example.pushpackage`
+const pushPackagePath = `${PUBLIC_DIR}/safari-push-example.pushpackage.zip`
 
 const startedAt = new Date();
 console.log('[start] generate_pushpackage.');
@@ -58,62 +33,38 @@ if (fs.existsSync(PUBLIC_DIR)) {
   rimraf.sync(PUBLIC_DIR)
 }
 
-mkdirp.sync(`${pushPackagePath}/icon.iconset`)
+mkdirp.sync(PUBLIC_DIR)
 
-rawFiles.forEach((file) => {
-  console.log('file = ', file)
-  childProcess.execSync(`cp '${ROOT_DIR}/${file}' '${pushPackagePath}/${file}'`)
-})
+// Generate pem from cer(Intermediate certificate)
+childProcess.execSync('openssl x509 -inform der -in AppleWWDRCA.cer -out AppleWWDRCA.pem')
 
-console.log('website.json')
-fs.writeFileSync(pushPackagePath + '/website.json', JSON.stringify(website))
+// Generate cert & private key from `.p12` file.
+childProcess.execSync(`openssl pkcs12 -in ${CERT_P12_FILENAME} -out crt.pem -clcerts -nokeys -passin pass:'${CERT_P12_PASSWORD}'`)
+childProcess.execSync(`openssl pkcs12 -in ${CERT_P12_FILENAME} -out key.pem -nocerts -nodes -passin pass:'${CERT_P12_PASSWORD}'`)
 
-console.log('manifest.json')
-rawFiles.push('website.json')
+const websiteJson = pushLib.websiteJSON(
+  WEBSITE_NAME, // websiteName
+  WEBSITE_PUSH_ID, // websitePushID
+  [ALLOWED_DOMAIN], // allowedDomains
+  URL_FORMAT_STRING, // urlFormatString
+  AUTHENTICATION_TOKEN, // authenticationToken (zeroFilled to fit 16 chars)
+  WEB_SERVICE_URL // webServiceURL (Must be https!)
+)
 
-rawFiles.forEach((file) => {
-  const sha1 = crypto.createHash('sha1')
-  sha1.update(fs.readFileSync(pushPackagePath + '/' + file), 'binary')
-  manifest[file] = sha1.digest('hex')
-})
+pushLib.generatePackage(
+  websiteJson, // The object from before / your own website.json object
+  ICON_DIR,
+  fs.readFileSync('crt.pem'), // Certificate
+  fs.readFileSync('key.pem'), // Private Key
+  fs.readFileSync('AppleWWDRCA.pem') // Intermediate certificate
+)
+  .pipe(fs.createWriteStream(pushPackagePath))
+  .on('finish', function () {
+    // Generate temporary files.
+    fs.unlinkSync('crt.pem')
+    fs.unlinkSync('key.pem')
+    fs.unlinkSync('AppleWWDRCA.pem')
 
-fs.writeFileSync(pushPackagePath + '/manifest.json', JSON.stringify(manifest))
-
-// Generate pem from cer
-childProcess.execSync(`openssl x509 -inform der -in AppleWWDRCA.cer -out AppleWWDRCA.pem`)
-
-childProcess.execSync(`openssl pkcs12 -in '${CERT_P12_FILENAME}' -nocerts -out 'private.pem' -passin pass:'${CERT_P12_PASSWORD}' -passout pass:'${CERT_P12_PASSWORD}'`)
-childProcess.execSync(`openssl pkcs12 -in '${CERT_P12_FILENAME}' -clcerts -nokeys -out 'cert.pem' -passin pass:'${CERT_P12_PASSWORD}'`)
-childProcess.execSync(`openssl smime -binary -sign -certfile AppleWWDRCA.pem -signer cert.pem -inkey private.pem -in '${pushPackagePath}/manifest.json' -out '${pushPackagePath}/signature' -outform DER -passin pass:'${CERT_P12_PASSWORD}'`)
-
-rawFiles.push('manifest.json')
-rawFiles.push('signature')
-
-if (fs.existsSync(pushPackagePath + '.zip')) {
-  fs.unlinkSync(pushPackagePath + '.zip')
-}
-
-const output = fs.createWriteStream(`${pushPackagePath}.zip`)
-const archive = archiver('zip')
-
-output.on('close', function () {
-  console.log(`Total bytes: ${archive.pointer()} written.`)
-  console.log('archiver has been finalized and the output file descriptor has closed.')
-
-  fs.unlinkSync('cert.pem')
-  fs.unlinkSync('private.pem')
-  rimraf.sync(pushPackagePath)
-
-  const endsAt = new Date();
-  console.log(`[end] generate_pushpackage. take ${endsAt - startedAt}ms`);
-})
-
-archive.pipe(output)
-
-console.log('building Package')
-
-rawFiles.forEach((file) => {
-  archive.append(fs.createReadStream(pushPackagePath + '/' + file), {name: file})
-})
-
-archive.finalize()
+    const endsAt = new Date();
+    console.log(`[end] generate_pushpackage. take ${endsAt - startedAt}ms`);
+  })

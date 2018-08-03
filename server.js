@@ -7,6 +7,7 @@ import koaBody from 'koa-body'
 import send from 'koa-send'
 import clearModule from 'clear-module'
 import pem from 'pem'
+import http from 'http'
 import https from 'https'
 
 import {
@@ -60,9 +61,13 @@ app.use(async (ctx) => {
   await send(ctx, ctx.path, {root: PUBLIC_DIR, index: 'index.html'})
 })
 
+// Start http server.
+console.log(`> Ready on http://localhost:${port}`)
+http.createServer(app.callback()).listen(port)
+
 // Start https server with self-signed certificate.
 pem.createCertificate({days: 1, selfSigned: true}, function (err, keys) {
   if (err) throw err
-  console.log(`> Ready on https://localhost:${port}`)
-  https.createServer({key: keys.serviceKey, cert: keys.certificate}, app.callback()).listen(port)
+  console.log(`> Ready on https://localhost:${port + 1}`)
+  https.createServer({key: keys.serviceKey, cert: keys.certificate}, app.callback()).listen(port + 1)
 })
