@@ -5,6 +5,8 @@ import Koa from 'koa'
 import logger from 'koa-logger'
 import koaBody from 'koa-body'
 import send from 'koa-send'
+import low from 'lowdb'
+import FileAsync from 'lowdb/adapters/FileAsync'
 import clearModule from 'clear-module'
 import pem from 'pem'
 import http from 'http'
@@ -34,8 +36,17 @@ if (dev) {
 }
 
 const port = parseInt(PORT, 10) || 5000
+const adapter = new FileAsync('db.json')
 
 const app = new Koa()
+
+low(adapter).then((db) => {
+  app.context.db = db
+
+  db.defaults({
+    subscriptions: []
+  }).write()
+})
 
 // log requests
 app.use(logger())

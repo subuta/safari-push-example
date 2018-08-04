@@ -4,3 +4,4 @@ AppleWWDRCA.cer
 safari-push-example.pushpackage*
 .env
 public
+db.json
