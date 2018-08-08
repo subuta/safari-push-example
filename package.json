@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node -r esm server.js",
     "envify": "env $(cat .env | xargs) envify front/index.js > public/index.js",
-    "copy": "copyfiles -u 1 front/**/* public",
+    "copy": "copyfiles -u 1 \"front/**/*\" public",
     "build": "npm run build-pp && npm run copy && npm run envify",
     "build-pp": "node -r esm bin/generate_pushpackage.js"
   },
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/subuta/safari-push-example#readme",
   "dependencies": {
+    "apn": "^2.2.0",
     "dotenv": "^6.0.0",
     "esm": "^3.0.72",
     "koa": "^2.5.2",

@@ -22,6 +22,19 @@ const checkRemotePermission = (permissionData) => {
   }
 }
 
+const bindEventListeners = () => {
+  const $notify = document.querySelector('#notify')
+  $notify.addEventListener('click', (e) => {
+    window.fetch(`${WEB_SERVICE_URL}/notify`, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({})
+    })
+  })
+}
+
 const onReady = () => {
   if ('safari' in window && 'pushNotification' in window.safari) {
     console.log('Browser is safari and has support for push notifications')
@@ -29,6 +42,7 @@ const onReady = () => {
     const permissionData = window.safari.pushNotification.permission(WEBSITE_PUSH_ID)
 
     checkRemotePermission(permissionData)
+    bindEventListeners()
   } else {
     console.error('Browser is not safari, use safari to proceed. If you are using safari you might not have support for push notifications enabled')
   }
