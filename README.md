@@ -12,8 +12,8 @@ Node.js server &amp; browser client example of Safari Push Notifications using A
 
 - [Active Membership of iOS Developer Account](https://developer.apple.com/account/#/overview/4579AZ8Q4Z)
 - `openssl` can be installed by `brew install openssl`
-- [ngrok](https://ngrok.com/) for serve https server with valid ssl certificate :)
-  - Run `npm start` will also serve https pages(with self-signed pem) at `https://localhost:5001`, But that won't work with Safari Push Notification
+- [ngrok](https://ngrok.com/) for serve https server easily with valid ssl certificate :)
+  - Run `npm start` will also serve https pages(with self-signed pem) at `https://localhost:5001`, But that won't work with Safari Push Notification...
 
 > Important: Make sure that your web server is using a real certificate issued from a Certificate Authority, not a self-signed certificate. If your certificate is self-signed, push notifications won’t reach your users.
 >
@@ -82,4 +82,4 @@ wget https://developer.apple.com/certificationauthority/AppleWWDRCA.cer
 1. Run `npm i` to for install dependencies.
 2. Run `npm run build` to generate PushPackage and build assets.
 3. Run `npm start` for starting server.
-4. Run `ngrok http 5000` for serving pages with valid ssl certificate and navigate to that page.
+4. Run `ngrok http 5000` for serving pages with valid ssl certificate and open that page(eg: `https://xxxxxxxx.ngrok.io`)!
